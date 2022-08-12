@@ -13,6 +13,10 @@ include-after: |
 
 Everything you need to know to install and configure Diesel, and create your first application.
 
+#### [All About Queries](./all-about-queries.html)
+
+Everything you need to know to install and configure Diesel, and create your first application.
+
 #### [All About Updates](./all-about-updates.html)
 
 This guide covers everything you need to know about constructing UPDATE queries with Diesel.

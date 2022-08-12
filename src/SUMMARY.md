@@ -8,6 +8,7 @@
 
 - [Guides to Diesel](./guides/index.md)
 - [Getting started](./guides/getting-started.md)
+- [All About Queries](./guides/all-about-queries.md)
 - [All About Updates](./guides/all-about-updates.md)
 - [All About Inserts](./guides/all-about-inserts.md)
 - [Composing Applications with Diesel](./guides/composing-applications.md)
