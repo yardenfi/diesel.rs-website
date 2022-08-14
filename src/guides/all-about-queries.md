@@ -86,11 +86,10 @@ CREATE TABLE cities (
   id SERIAL PRIMARY KEY,
   name VARCHAR NOT NULL,
   country_id INT NOT NULL,
-  foundation_date DATE NOT NULL,
   is_capital BOOLEAN NOT NULL,
    CONSTRAINT fk_country
       FOREIGN KEY(country_id) 
-	  REFERENCES countries(country_id)
+	  REFERENCES countries(id)
 )
 ```
 
@@ -101,12 +100,88 @@ CREATE TABLE cities (
 [down.sql](https://github.com/diesel-rs/diesel/tree/v1.4.4/examples/postgres/getting_started_step_1/migrations/20160815133237_create_posts/down.sql)
 
 ```sql
-DROP TABLE countries
+DROP TABLE cities
 ```
 
 :::
 
+We can now apply our new migrations:
 
+```sh
+diesel migration run
+```
+
+
+Let's insert some new countries and cities into our tables:
+
+```rust
+mod schema;
+
+#[macro_use]
+extern crate diesel;
+extern crate dotenv;
+
+use std::env;
+use self::diesel::prelude::*;
+use self::schema::countries;
+use dotenv::dotenv;
+use crate::cities::{country_id, is_capital, name};
+use crate::schema::cities;
+
+pub fn establish_connection() -> PgConnection {
+    dotenv().ok();
+
+    let database_url = env::var("DATABASE_URL")
+        .expect("DATABASE_URL must be set");
+    PgConnection::establish(&database_url)
+        .expect(&format!("Error connecting to {}", database_url))
+}
+
+fn main() {
+    let connection = establish_connection();
+    diesel::insert_into(countries::table)
+        .values(vec![
+            countries::name.eq("Germany"),
+            countries::name.eq("France"),
+            countries::name.eq("Spain")
+        ])
+        .execute(&connection)
+        .expect("Error saving new countries");
+
+    diesel::insert_into(cities::table)
+        .values(vec![
+            (name.eq("Berlin"), country_id.eq(1), is_capital.eq(true)),
+            (name.eq("Hamburg"), country_id.eq(1), is_capital.eq(false)),
+            (name.eq("Paris"), country_id.eq(2), is_capital.eq(true)),
+            (name.eq("Marseille"), country_id.eq(2), is_capital.eq(false)),
+            (name.eq("Madrid"), country_id.eq(3), is_capital.eq(true)),
+            (name.eq("Barcelona"), country_id.eq(3), is_capital.eq(false)),
+        ])
+        .execute(&connection)
+        .expect("Error saving new cities");
+}
+```
+
+After that, we want to create a file that includes our models. We'll use these models later to query our database.
+We'll create a new file under src/models.rs:
+
+```rust
+use diesel::sql_types::{Date};
+
+#[derive(Queryable)]
+pub struct Country {
+    pub id: i32,
+    pub name: String
+}
+
+#[derive(Queryable)]
+pub struct City {
+    pub id: i32,
+    pub name: String,
+    pub country_id: i32,
+    pub is_capital: bool
+}
+```
 
 :::
 :::
